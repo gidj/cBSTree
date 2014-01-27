@@ -5,8 +5,7 @@
 typedef struct Node *Node;
 
 struct Node {
-  void* key;
-  void* value;
+  void* data;
   Node left, right;
 };
 
@@ -33,10 +32,17 @@ extern BSTree bstree_new(unsigned elementSize,
 
 void bstree_free(BSTree *tree)
 {
+
+/* TODO: Make a helper function that recursively destroys subtrees */ 
   assert(*tree && tree);
   if ((*tree)->root)
   {
-    
-  }
+    Node left = (*tree)->root->left;
+    Node right = (*tree)->root->right;
 
+    node_free((*tree)->root);
+
+
+  }
+  
 }
