@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 
-void node_free();
-typedef struct Node *Node;
+static void node_free();
 
+typedef struct Node *Node;
 struct Node {
   void* data;
   Node left, right;
@@ -55,6 +55,11 @@ void bstree_free(BSTree *tree)
   }
 }
 
+/* This helper function, node_new(), returns a Node object initialized with 
+ * all of the values provided to it. 
+ *
+ * TODO: implement a cleaner memory interface with error handling. */ 
+
 Node node_new(const void* value, int elementSize, Node left, Node right)
 {
   assert(value);
@@ -84,7 +89,10 @@ Node node_new(const void* value, int elementSize, Node left, Node right)
   return n;
 }
 
-void node_free(Node *n, void (*free_fn)(const void *value))
+/* This helper function, node_free(), only frees the data of the node, and the node itself. 
+ * Misuse can cause lost pointers--that's why it's a static function. */
+
+static void node_free(Node *n, void (*free_fn)(const void *value))
 {
   assert(*n && n);
   if (free_fn)
