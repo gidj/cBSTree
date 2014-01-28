@@ -60,7 +60,7 @@ void bstree_free(BSTree *tree)
  *
  * TODO: implement a cleaner memory interface with error handling. */ 
 
-Node node_new(const void* value, int elementSize, Node left, Node right)
+static Node node_new(const void* value, int elementSize, Node left, Node right)
 {
   assert(value);
   Node n = malloc(sizeof(*n));
@@ -107,4 +107,58 @@ static void node_free(Node *n, void (*free_fn)(const void *value))
   free(*n);
   *n = NULL;
 }
+
+void* bstree_insert(BSTree t, void* value)
+{
+  assert(t && value);
+  Node *cursor = &( t->root );
+
+  if (*cursor)
+  {
+    while(*cursor) {
+      switch ((t->cmp)(value, (*cursor)->data))
+      {
+        case 1: 
+          *cursor = (*cursor)->right;
+          break;
+        case 0:
+          return (*cursor)->data;
+        case -1:
+          *cursor = (*cursor)->left;
+          break;
+      } 
+    }
+    *cursor = node_new(value, t->elementSize, NULL, NULL);
+  }
+  else
+  {
+    *cursor = node_new(value, t->elementSize, NULL, NULL);
+  }
+
+  return (*cursor)->data;
+}
+
+extern void* bstree_search(BSTree t, void* value)
+{
+  assert(t);
+  if (value)
+  {
+    Node *cursor = &( t->root );
+    while(*cursor) {
+      switch ((t->cmp)(value, (*cursor)->data))
+      {
+        case 1: 
+          *cursor = (*cursor)->right;
+          break;
+        case 0:
+          return (*cursor)->data;
+        case -1:
+          *cursor = (*cursor)->left;
+          break;
+      } 
+    }
+  }
+  return NULL;
+}
+
 
