@@ -108,6 +108,38 @@ static void node_free(Node *n, void (*free_fn)(const void *value))
   *n = NULL;
 }
 
+static void node_remove(Node *n, void (*free_fn)(const void *value))
+{
+  if (*n)
+  {
+    Node *cursor = n;
+    
+    if (!(*cursor)->left && !(*cursor)->right)
+    {
+      node_free(cursor, free_fn);
+      return;
+    }
+    else if (!(*cursor)->left)
+    {
+      Node tmp = *cursor;
+      *cursor = (*cursor)->right;
+      node_free(&tmp, free_fn);
+      return;
+    }
+    else if (!(*cursor)->right)
+    {
+      Node tmp = *cursor;
+      *cursor = (*cursor)->left;
+      node_free(&tmp, free_fn);
+      return;
+    }
+    else
+    {
+      /* TODO: The case if there are two children. */
+    }
+  }
+}
+
 void* bstree_insert(BSTree t, void* value)
 {
   assert(t && value);
@@ -138,7 +170,7 @@ void* bstree_insert(BSTree t, void* value)
   return (*cursor)->data;
 }
 
-extern void* bstree_search(BSTree t, void* value)
+void* bstree_search(BSTree t, void* value)
 {
   assert(t);
   if (value)
@@ -161,4 +193,7 @@ extern void* bstree_search(BSTree t, void* value)
   return NULL;
 }
 
+void* bstree_remove(BSTree t, void* value)
+{
 
+}
