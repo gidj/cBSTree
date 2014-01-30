@@ -113,12 +113,14 @@ static void node_remove(Node *n, void (*free_fn)(const void *value))
   if (*n)
   {
     Node *cursor = n;
-    
+ /* If the referenced node has no children, we simply free it and return. */ 
     if (!(*cursor)->left && !(*cursor)->right)
     {
       node_free(cursor, free_fn);
       return;
     }
+/* If the referenced node has just one child node, we move that child node 
+ * into the position of the node to be removed. */ 
     else if (!(*cursor)->left)
     {
       Node tmp = *cursor;
@@ -133,9 +135,43 @@ static void node_remove(Node *n, void (*free_fn)(const void *value))
       node_free(&tmp, free_fn);
       return;
     }
+/* Finally, if the node to be removed has two children, 'cursor' becomes reference
+ * to the successor of the node to be removed via a while loop. We exploit the 
+ * inherent structure of the search tree, which dictates that it must be the 
+ * left-most node in the right subtree of the node to be removed. */ 
     else
     {
-      /* TODO: The case if there are two children. */
+      cursor = &((*n)->right);
+      while((*cursor)->left) {
+        *cursor = (*cursor)->left;
+      }
+
+/* If the successor is in fact the right child of the node to be removed, our
+ * job is easy and we just move the successor into place and attach the left 
+ * child of the node to be removed to the left pointer of the successor node. 
+ * Freeing the node to be removed completes the action.*/ 
+      if ((*n)->right == (*cursor))
+      {
+        Node *tmp = n;
+        (*cursor)->left = (*n)->left;
+        *n = *cursor;
+
+        node_free(tmp, free_fn);
+        return;
+      }
+/* If the successor is further down the tree, we must do a bit more further
+ * down the tree to keep it consistent.  */ 
+      else
+      {
+        Node *tmp = n; // set tmp to reference the node to be deleted 
+        (*cursor)->left = (*n)->left; // set the left child of the successor 
+        *n = *cursor; // replace the node to be deleted with its successor 
+        *cursor = (*cursor)->right; // set the LEFT child pointer of successor's parent to successor's left child 
+        (*n)->right = (*tmp)->right; // set right child of the successor in its new place 
+
+        node_free(tmp, free_fn);
+        return;
+      }
     }
   }
 }
