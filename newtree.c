@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 
-static void node_free();
-
 typedef struct Node *Node;
 struct Node {
   void* data;
@@ -18,6 +16,9 @@ struct BSTree {
   int (*cmp)(const void* x, const void* y);
   void (*free_fn)(const void* value);
 };
+
+static void node_free(Node *n, void (*free_fn)(const void *value));
+static void subtree_free(Node *subtree, void (*free_fn)(const void *data));
 
 /* When creating a new bstree, the client must provide:
  * 1. the size of the object that the tree will hold
@@ -45,15 +46,21 @@ void bstree_free(BSTree *tree)
 
 /* TODO: Make a helper function that recursively destroys subtrees */ 
   assert(*tree && tree);
-  if ((*tree)->root)
+  subtree_free(&(*tree)->root, (*tree)->free_fn);
+}
+
+static void subtree_free(Node *subtree, void (*free_fn)(const void *data))
+{
+  if (*subtree)
   {
-    Node left = (*tree)->root->left;
-    Node right = (*tree)->root->right;
+    subtree_free(&(*subtree)->left, free_fn);
+    subtree_free(&(*subtree)->right, free_fn);
+    node_free(subtree, free_fn);
 
-    node_free((*tree)->root, (*tree)->free_fn);
-
+    *subtree = NULL;
   }
 }
+
 
 /* This helper function, node_new(), returns a Node object initialized with 
  * all of the values provided to it. 
