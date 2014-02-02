@@ -238,5 +238,24 @@ void* bstree_search(BSTree t, void* value)
 
 void* bstree_remove(BSTree t, void* value)
 {
+  assert(t);
 
+  Node *cursor = &( t->root );
+  while(*cursor) {
+    switch ((t->cmp)(value, (*cursor)->data))
+    {
+      case 1: 
+        *cursor = (*cursor)->right;
+        break;
+      case 0:
+        void* data = malloc(t->elementSize);
+        memcpy(data, (*cursor)->data, t->elementSize);
+        node_free(cursor, t->free_fn);
+        return data;
+      case -1:
+        *cursor = (*cursor)->left;
+        break;
+    } 
+  }
+  return NULL;
 }
