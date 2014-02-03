@@ -1,4 +1,4 @@
-#include "newtree.h"
+#include "bstree.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,6 +19,7 @@ struct BSTree {
 
 static void node_free(Node *n, void (*free_fn)(const void *value));
 static void subtree_free(Node *subtree, void (*free_fn)(const void *data));
+static void subtree_traverse(Node n, void (*fn)(const void* data));
 
 /* When creating a new bstree, the client must provide:
  * 1. the size of the object that the tree will hold
@@ -183,6 +184,25 @@ static void node_remove(Node *n, void (*free_fn)(const void *value))
   }
 }
 
+void bstree_traverse(BSTree tree, void (*fn)(const void* data))
+{
+  assert(tree && fn);
+  if (tree->root)
+  {
+    subtree_traverse(tree->root, fn);
+  }
+} 
+
+static void subtree_traverse(Node n, void (*fn)(const void* data))
+{
+  if (n)
+  {
+    fn(n->data);
+    subtree_traverse(n->left, fn);
+    subtree_traverse(n->right, fn);
+  }
+}
+
 void* bstree_insert(BSTree t, void* value)
 {
   assert(t && value);
@@ -259,3 +279,4 @@ void* bstree_remove(BSTree t, void* value)
   }
   return NULL;
 }
+
